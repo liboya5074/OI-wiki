@@ -1,4 +1,4 @@
-author: Ir1d, CBW2007, ChungZH, xhn16729, Xeonacid, tptpp, hsfzLZH1, ouuan, Marcythm, HeRaNO, greyqz, Chrogeek, partychicken, zhb2000, xyf007, Persdre, XiaoSuan250, hhc0001, ZhangZhanhaoxiang, Taoran\_01
+author: Ir1d, CBW2007, ChungZH, xhn16729, Xeonacid, tptpp, hsfzLZH1, ouuan, Marcythm, HeRaNO, greyqz, Chrogeek, partychicken, zhb2000, xyf007, Persdre, XiaoSuan250, hhc0001, ZhangZhanhaoxiang, Taoran\_01, liboya5074
 
 本页面主要介绍了动态规划的基本思想，以及动态规划中状态及状态转移方程的设计思路，帮助各位初学者对动态规划有一个初步的了解。
 
@@ -229,9 +229,56 @@ int dp() {
     需要注意的是，在步骤 2 中，若 $a_i \leq d_{len}$，由于最长上升子序列中相邻元素不能相等，需要在 $d$ 序列中找到 **第一个**  **不小于**  $a_i$ 的元素，用 $a_i$ 替换之。
     
     在实现上（以 C++ 为例），需要将 `upper_bound` 函数改为 `lower_bound`。
+### 输出方案（算法二）[^ref3]
+
+对于一条LCS，通过记录每个元素的前驱可以输出方案。
+
+考虑元素 $a_i$ 的前驱：
+
+1.  元素大于等于 $d_{len}$，直接将该元素插入到 $d$ 序列的末尾，这时候 $a_i$ 的前驱是原 $d$ 序列的末尾。
+2.  元素小于 $d_{len}$，找到 **第一个** 大于它的元素，用 $a_i$ 替换它，这时 $a_i$ 的前驱是原 $d$ 序列中 $a_i$ 替换元素在 $d$ 序列中的上一个元素，而不是被替换元素的前驱，因为这个前驱可能不是修改之后可行的。
+
+所以代码就非常的好写了。
+
+参考代码如下：
+
+=== "C++"
+    ```cpp
+    int sti[N]; // 记录栈中元素的下标
+    int sta[N]; // 记录栈中元素的值
+    int top = 0;
+    int pre[N];
+
+    for (int i = 1; i <= n; i ++ )
+    	cin >> a[i];
+    for (int i = 1; i <= n; i ++ ) {
+    	if (a[i] >= stk[top]) {
+    		pre[i] = sti[top];
+    		sti[ ++ top] = i;
+    		sta[ top ] = a[i];
+    	}else {
+    		int p = upper_bound(sta + 1, sta + top + 1, a[i]) - sta;
+    		pre[i] = sti[p - 1];
+    		sti[p] = i;
+    		sta[p] = a[i];
+    	}
+    }
+    cout << top << '\n';
+    vector <int> ans;
+    int cur = sti[top];
+    while (cur) {
+    	ans.push_back(cur);
+    	cur = pre[cur];
+    }
+    reverse(ans.begin(), ans.end());
+    for (auto i : ans)
+    	cout << i << " ";
+    ```
 
 ## 参考资料与注释
 
 [^ref1]: [位运算求最长公共子序列 - -Wallace- - 博客园](https://www.cnblogs.com/-Wallace-/p/bit-lcs.html)
 
 [^ref2]: [最长不下降子序列 nlogn 算法详解 - lvmememe - 博客园](https://www.cnblogs.com/itlqs/p/5743114.html)
+
+[^ref3]: [最长不降子序列 n log n 方案输出与 Dilworth 定理 - 动态规划模板](https://www.shuzhiduo.com/A/q4zVgGKWJK/)
